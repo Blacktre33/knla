@@ -5,42 +5,36 @@ already in the current export, and the music runs underneath untouched.
 
 ## What was wrong with the current cut
 
-Scene analysis of the export found 17 cuts made from only 11 different shots:
+Measured on the actual export (1080x1920, 24 fps, 30 s):
 
-| time | shot | problem |
-|---|---|---|
-| 0:00–0:14 | puddle → shoes → elder → group → walk → **shoes again** → nose-wipe → **walk again** → two-shot → face → **puddle again** | cuts every ~1 s with no direction. Repeated shots come back before the viewer has missed them, so it feels like a loop |
-| 0:14–0:21 | marigold wide, 7 s | the one big moment lands in the middle and stops the momentum dead after 14 s of fast cutting |
-| 0:21–0:26 | elder → **face again** → **marigolds again** | the ending repeats the middle, so there's no build |
-| 0:26–0:27 | **puddle again** | that's the 3rd puddle, so the bookend doesn't feel special |
-| 0:27 | hard cut to black card, music stops | abrupt. The card arrives with no breath |
-
-Underneath that, the film already has a story that the edit hides. The friend wipes his nose with
-a pink cloth, rests his head on the elder's shoulder, a drop sits on the elder's moustache, and the
-tagline is *still feeling everything*. **It's about men crying in public.** The new edit is built
-around that.
+* **The music has a shape the edit ignores.** It's a quiet intro until the beat drops at exactly
+  **5.50 s**, then full energy until **21.5 s**, then a softer outro that fades at 29.5 s. The
+  music is 130.9 BPM, which is exactly **11 frames per beat**.
+* **Cuts are a frame late.** Most cuts land 1 frame (42 ms) after the beat (3.71, 4.62,
+  5.54, 6.46 …), so the cutting feels slightly sluggish.
+* **There's a stray 0.25 s black flash at 7.2 s** and a 1-frame shot at 7.38 s, both off the beat.
+* **The same footage is reused too often.** The same face close-up appears 5 times, the puddle
+  4 times and the walk 3 times. Shots come back before you miss them, so it plays like a loop.
+* **The story is buried.** The friend wipes his nose with a pink cloth, rests his head on the
+  elder's shoulder, a tear runs down the elder's cheek, and the tagline is *still feeling
+  everything*. It's about men crying in public.
 
 ## The new structure
 
-| new time | shot | why |
-|---|---|---|
-| 0:00 | puddle ripple (fade up from black, slowed slightly) | cold open, mood |
-| 0:01.25 | shoes in the puddle | match cut: the reflection becomes the shoes |
-| 0:02.25 | walk → shoes → walk | **arrival**: feet and stride cut on the beat, match on action |
-| 0:05.25 | group wide | the crew is revealed once they've arrived |
-| 0:07.25 | elder seated, friend wiping nose behind him | plants the emotion |
-| 0:09.25 | CU nose-wipe | **the feeling** |
-| 0:10.25 | head on shoulder, eyes to camera | comfort |
-| 0:12.25 | ECU: drop on the moustache | the tear |
-| 0:13.25 | puddle ripple | match cut: the tear lands in the puddle |
-| 0:13.75 | **soft dissolve** → marigolds, slow-mo | **release**: the payoff, now earned |
-| 0:20.75 | ECU face → marigolds closer → elder's final stare | quiet coda, each shot used once |
-| 0:25.75 | puddle ripple | bookend, used for the last time |
-| 0:26.5 | **fade through black** → ANTIDOTE card | the card lands as the music resolves |
+Every cut sits on the 11-frame beat grid.
 
-Transitions are used on purpose: hard cuts for the rhythm, and just two soft ones at the two
-emotional turns (into the flowers, and into the card). No zooms or whips. They'd fight the
-lo-fi mood.
+| time | shots | music |
+|---|---|---|
+| 0:00 | puddle (fade up) → shoes → torso, face withheld → friend wiping his nose | quiet intro, 1–2 bars per shot |
+| **0:05.50** | **the face and the tear, held a full bar** | **the drop** |
+| 0:07.33 | walk → shoes / torso on single beats → crew → stack → walk → wipe | full energy, cutting on the beat |
+| 0:13.75 | face → puddle (the tear lands) → **dissolve** into the marigolds, 6.4 s | release |
+| 0:21.54 | head on shoulder → last look → marigolds → walk → puddle bookend | outro, the music eases |
+| 0:26.58 | **fade through black** → ANTIDOTE card, held 3 s | the music resolves under the card |
+
+There are only two soft transitions, at the two emotional turns. Everything else is a hard cut on
+the beat. The face close-up now appears 3 times (at the drop, before the tear, last look) instead
+of 5, and the black flash is gone.
 
 ## Run it
 
@@ -48,13 +42,11 @@ lo-fi mood.
 pip install imageio-ffmpeg numpy      # or have ffmpeg on PATH
 python edit/recut.py detect antidote.mp4             # check the real cut points
 python edit/recut.py render antidote.mp4 recut.mp4   # render
-python edit/recut.py render antidote.mp4 recut.mp4 --snap   # also lock cuts to the beat
 ```
 
-* **Check the in/out points first.** The source times in `edl.json` come from scene analysis
-  rounded to whole seconds. `detect` prints the exact cut points of the export. If a clip in the
-  render flashes a frame of the neighbouring shot, nudge its `in`/`out` by ~0.05 s.
-* **`--snap`** estimates the tempo of the music and moves every cut to the nearest beat (within
+* The in/out times in `edl.json` are taken from the export's real cut points (`detect` prints
+  them), and are frame-accurate.
+* **`--snap`** is for other edits and isn't needed here, since this edit list is already on the grid. It estimates the tempo of the music and moves every cut to the nearest beat (within
   a third of a beat), keeping the total at 30 s. Clips stretch or squeeze slightly to fit.
 * Everything is in `edl.json`: re-order clips, change `dur`, or add
   `"transition": {"type": "fade", "dur": 0.5}` to any clip. Any ffmpeg `xfade` name works
