@@ -1,5 +1,41 @@
 # ANTIDOTE: re-cut
 
+## v4: the "impact" cut (`edl_v4.json`)
+
+The brief, from the original ChatGPT conversation: a crybabycore fashion music video on
+*Antidote (sped up)*, about "fast music, slow bodies, tiny cracks in composure", with one impossible
+event (the marigolds **rise**). The feedback on every earlier version was that it had **no suspense
+and no impact moments**. So v4 puts every visual hit exactly on a hit in the song.
+
+Built from the original clips in ChatGPT's Final Cut package (`ANTIDOTE_Final_Cut_v2/Media`),
+over the clean `Music_00-30.wav` with none of V3's baked-in audio dips. The song is 130.9 BPM,
+which is 11 frames per beat at 24 fps, with beats on frame 11k+1.
+
+| time | frame | music | picture |
+|---|---|---|---|
+| 0:00 | 0 | intro, no bass | portrait → tear → handkerchief, slow push-ins. They hold their composure |
+| 0:04.6 | 111 | last beat before the drop | the drop **falls in slow motion**: suspense |
+| **0:05.54** | **133** | **bass drop** | **the drop hits the puddle on the bass drop**, with a white flash and a punch-in |
+| **0:07.38** | **177** | **hi-hats enter** | **runway entrance**, played slower than the music, with a punch-in |
+| 0:11.0 | 265 | full groove | fashion percussion: sneaker / patch / walk / sneaker / sunglasses / walk, one per beat |
+| 0:14.7 | 353 | | marigolds on the ground: stillness |
+| **0:16.54** | **397** | **bar line** | **the petals lift off**, ramped into smooth (motion-interpolated) slow motion for 5.5 s |
+| **0:22.04** | **529** | **breakdown, hats drop out** | head on shoulder: the antidote |
+| 0:25.7 | 617 | outro | back to the portrait, pulling away |
+| **0:27.54** | **661** | **last bar** | **hard cut to ANTIDOTE** |
+
+```bash
+# needs the unzipped Final Cut package, plus the V3 export saved inside it as antidote_v3.mp4 (for the title card)
+python edit/recut.py render ANTIDOTE_Final_Cut_v2 antidote_v4.mp4 --edl edit/edl_v4.json
+```
+
+Per-clip effects live in `fx`: `push` [start, end zoom], `punch` [amount, frames], `flash`
+(frames of white), and `smooth` (motion-interpolated slow motion).
+
+---
+
+## v3 re-cut of the export (`edl.json`)
+
 A new edit of the 30 s *ANTIDOTE — Still Feeling Everything* film. It is built only from footage
 already in the current export, and the music runs underneath untouched.
 

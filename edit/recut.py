@@ -110,14 +110,34 @@ def snap_to_beats(clips, beats, min_dur=0.4):
     return clips
 
 
+def zoom_expr(c, fx):
+    """Per-frame zoom factor: a slow push from push[0] to push[1], times a decaying punch-in."""
+    z0, z1 = fx.get("push", (1.0, 1.0))
+    expr = f"({z0}+{z1 - z0}*t/{c['dur']})"
+    if "punch" in fx:
+        amp, frames = fx["punch"]
+        expr += f"*(1+{amp}*max(0,1-t*{fx['fps']}/{frames}))"
+    return expr
+
+
 def build_filter(clips, w, h, fps, fade_in):
     parts = []
     for i, c in enumerate(clips):
         speed = c["dur"] / (c["out"] - c["in"])
-        chain = (f"[0:v]trim=start={c['in']}:end={c['out']},setpts=(PTS-STARTPTS)*{speed:.5f},"
-                 f"fps={fps},scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
+        fx = dict(c.get("fx", {}), fps=fps)
+        retime = (f"minterpolate=fps={fps}:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1"
+                  if fx.get("smooth") else f"fps={fps}")
+        chain = (f"[{c.get('input', 0)}:v]trim=start={c['in']}:end={c['out']},"
+                 f"setpts=(PTS-STARTPTS)*{speed:.5f},{retime},"
+                 f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
                  f"setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=1,"
                  f"trim=duration={c['dur']},setpts=PTS-STARTPTS")
+        if "push" in fx or "punch" in fx:
+            z = zoom_expr(c, fx)
+            chain += (f",scale=w='trunc({w}*{z}/2)*2':h='trunc({h}*{z}/2)*2':eval=frame,"
+                      f"crop={w}:{h},setsar=1")
+        if "flash" in fx:
+            chain += f",fade=t=in:st=0:d={fx['flash'] / fps:.4f}:color=white"
         if i == 0 and fade_in:
             chain += f",fade=t=in:d={fade_in}"
         parts.append(chain + f",fps={fps}[v{i}]")
@@ -137,37 +157,61 @@ def build_filter(clips, w, h, fps, fade_in):
     return ";".join(parts), cur, length
 
 
-def render(src, dst, edl_path, snap):
-    edl = json.loads(Path(edl_path).read_text())
-    clips, opts = edl["clips"], edl.get("output", {})
-    info = probe(src)
-    for c in clips:
-        if c["out"] > info["duration"] + 0.05:
-            sys.exit(f"{c['shot']}: out {c['out']} is past the end of the source ({info['duration']:.2f}s)")
-    if snap:
-        if not info["audio"]:
-            sys.exit("--snap needs an audio track")
-        clips = snap_to_beats(clips, beat_times(src))
+def from_frames(edl):
+    """Edit lists with "units": "frames" give in/out/dur and transitions in frames."""
+    fps = edl["output"]["fps"]
+    for c in edl["clips"]:
+        c["in"] = c["in"] / fps - 0.01
+        c["out"] = c["out"] / fps - 0.01
+        c["dur"] = c["dur"] / fps
+        if "transition" in c:
+            c["transition"]["dur"] /= fps
 
-    w = opts.get("width") or info["width"]
-    h = opts.get("height") or info["height"]
-    fps = opts.get("fps") or info["fps"]
+
+def render(src, dst, edl_path, snap):
+    """src is the video to re-cut, or the media folder when the edit list names its sources."""
+    edl = json.loads(Path(edl_path).read_text())
+    if edl.get("units") == "frames":
+        from_frames(edl)
+    clips, opts = edl["clips"], edl.get("output", {})
+
+    sources = edl.get("sources")
+    files = [Path(src) / f for f in sources.values()] if sources else [Path(src)]
+    index = {name: i for i, name in enumerate(sources or [])}
+    infos = [probe(f) for f in files]
+    for c in clips:
+        c["input"] = index.get(c.get("src"), 0)
+        if c["out"] > infos[c["input"]]["duration"] + 0.05:
+            sys.exit(f"{c['shot']}: out {c['out']:.2f} is past the end of its source")
+
+    music = Path(src) / edl["music"] if edl.get("music") else None
+    audio_in = f"{len(files)}:a" if music else ("0:a" if infos[0]["audio"] else None)
+    if snap:
+        if not audio_in:
+            sys.exit("--snap needs an audio track")
+        clips = snap_to_beats(clips, beat_times(music or files[0]))
+
+    w = opts.get("width") or infos[0]["width"]
+    h = opts.get("height") or infos[0]["height"]
+    fps = opts.get("fps") or infos[0]["fps"]
     graph, vout, length = build_filter(clips, w, h, fps, opts.get("fade_in", 0))
 
     starts, _ = timeline(clips)
     for c, s in zip(clips, starts):
-        print(f"{s:6.2f}s  {c['shot']:<3} {c['dur']:4.2f}s  {c.get('note', '')}")
+        print(f"{s:6.2f}s  {c['shot']:<10} {c['dur']:4.2f}s  {c.get('note', '')}")
     print(f"total {length:.2f}s")
 
-    cmd = [FFMPEG, "-y", "-hide_banner", "-v", "error", "-i", str(src)]
+    cmd = [FFMPEG, "-y", "-hide_banner", "-v", "error"]
+    for f in files + ([music] if music else []):
+        cmd += ["-i", str(f)]
     maps = ["-map", f"[{vout}]"]
-    if info["audio"]:
+    if audio_in:
         afade = opts.get("audio_fade_out", 0)
-        achain = f"[0:a]apad,atrim=0:{length:.3f}"
+        achain = f"[{audio_in}]apad,atrim=0:{length:.3f}"
         if afade:
             achain += f",afade=t=out:st={length - afade:.3f}:d={afade}"
         graph += f";{achain}[aout]"
-        maps += ["-map", "[aout]", "-c:a", "aac", "-b:a", "192k"]
+        maps += ["-map", "[aout]", "-c:a", "aac", "-b:a", "256k"]
     cmd += ["-filter_complex", graph, *maps, "-c:v", "libx264", "-crf", "17",
             "-preset", "slow", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
             "-t", f"{length:.3f}", str(dst)]
