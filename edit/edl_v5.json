@@ -1,0 +1,274 @@
+{
+ "_about": "ANTIDOTE v5 cut (v4 + Higgsfield shots, sound design, finishing), built from the original clips in ChatGPT's Final Cut package (ANTIDOTE_Final_Cut_v2) over the clean song. Times are frames at 24fps. The song is 130.9 BPM = 11 frames per beat, with beats on frame 11k+1: bass drop 133, hi-hats 177, breakdown 529, bass ends 710.",
+ "units": "frames",
+ "output": {
+  "width": 1080,
+  "height": 1920,
+  "fps": 24,
+  "fade_in": 0.3,
+  "audio_fade_out": 0.0,
+  "grain": 7,
+  "vignette": 0.55,
+  "shake": [
+   [
+    133,
+    149,
+    14
+   ],
+   [
+    661,
+    671,
+    8
+   ]
+  ]
+ },
+ "music": "Media/Music_sfx.wav",
+ "sources": {
+  "portrait": "Media/01_Opening_portrait.mov",
+  "tear": "Media/02_Lead_and_tear.mov",
+  "puddle": "Media/03_Puddle_impact.mov",
+  "runway": "Media/04_Runway_entrance.mov",
+  "sneaker": "Media/05_Metallic_sneaker_detail.mov",
+  "patch": "Media/06_Heart_patch_and_beads.mov",
+  "hanky": "Media/07_Pink_handkerchief.mov",
+  "glasses": "Media/08_Sunglasses_close-up.mov",
+  "marigolds": "Media/09_Rising_marigolds.mov",
+  "comfort": "Media/10_Shoulder_comfort.mov",
+  "return": "Media/11_Return_portrait.mov",
+  "card": "antidote_v3.mp4",
+  "petals_macro": "Media/13_Petals_lift_macro.mp4",
+  "looks_up": "Media/14_Lead_looks_up.mp4"
+ },
+ "clips": [
+  {
+   "shot": "portrait",
+   "src": "portrait",
+   "in": 8,
+   "out": 53,
+   "dur": 45,
+   "fx": {
+    "push": [
+     1.0,
+     1.06
+    ]
+   },
+   "note": "INTRO, no bass: they hold their pose. Slow push in"
+  },
+  {
+   "shot": "tear",
+   "src": "tear",
+   "in": 8,
+   "out": 52,
+   "dur": 44,
+   "fx": {
+    "push": [
+     1.0,
+     1.08
+    ]
+   },
+   "note": "the crack in composure"
+  },
+  {
+   "shot": "hanky",
+   "src": "hanky",
+   "in": 8,
+   "out": 30,
+   "dur": 22,
+   "note": "the handkerchief dab"
+  },
+  {
+   "shot": "puddle",
+   "src": "puddle",
+   "in": 0,
+   "out": 16,
+   "dur": 22,
+   "note": "the drop falls, slightly slowed: wait for it"
+  },
+  {
+   "shot": "puddle",
+   "src": "puddle",
+   "in": 16,
+   "out": 49,
+   "dur": 33,
+   "fx": {
+    "flash": 3,
+    "punch": [
+     0.14,
+     8
+    ]
+   },
+   "note": "IMPACT 5.54s: drop hits the puddle ON the bass drop"
+  },
+  {
+   "shot": "glasses",
+   "src": "glasses",
+   "in": 8,
+   "out": 19,
+   "dur": 11,
+   "fx": {
+    "punch": [
+     0.06,
+     6
+    ]
+   }
+  },
+  {
+   "shot": "runway",
+   "src": "runway",
+   "in": 8,
+   "out": 78,
+   "dur": 88,
+   "fx": {
+    "punch": [
+     0.08,
+     8
+    ]
+   },
+   "note": "GROOVE 7.38s: runway entrance on the hi-hats, bodies slower than the music"
+  },
+  {
+   "shot": "sneaker",
+   "src": "sneaker",
+   "in": 8,
+   "out": 19,
+   "dur": 11,
+   "fx": {
+    "punch": [
+     0.06,
+     6
+    ]
+   },
+   "note": "fashion percussion, one insert per beat"
+  },
+  {
+   "shot": "patch",
+   "src": "patch",
+   "in": 8,
+   "out": 19,
+   "dur": 11,
+   "fx": {
+    "punch": [
+     0.06,
+     6
+    ]
+   }
+  },
+  {
+   "shot": "runway",
+   "src": "runway",
+   "in": 80,
+   "out": 102,
+   "dur": 22
+  },
+  {
+   "shot": "sneaker",
+   "src": "sneaker",
+   "in": 19,
+   "out": 30,
+   "dur": 11,
+   "fx": {
+    "punch": [
+     0.06,
+     6
+    ]
+   }
+  },
+  {
+   "shot": "glasses",
+   "src": "glasses",
+   "in": 19,
+   "out": 30,
+   "dur": 11,
+   "fx": {
+    "punch": [
+     0.06,
+     6
+    ]
+   }
+  },
+  {
+   "shot": "runway",
+   "src": "runway",
+   "in": 102,
+   "out": 124,
+   "dur": 22
+  },
+  {
+   "shot": "marigolds",
+   "src": "marigolds",
+   "in": 26,
+   "out": 70,
+   "dur": 44,
+   "note": "stillness"
+  },
+  {
+   "shot": "petals",
+   "src": "petals_macro",
+   "in": 22,
+   "out": 44,
+   "dur": 22,
+   "note": "LIFT 16.54s on the bar: petals leave the ground (new Higgsfield macro)",
+   "fx": {
+    "punch": [
+     0.05,
+     8
+    ]
+   }
+  },
+  {
+   "shot": "marigolds",
+   "src": "marigolds",
+   "in": 70,
+   "out": 108,
+   "dur": 66,
+   "note": "reveal: the whole alley lifts, smooth slow motion",
+   "fx": {
+    "smooth": true
+   }
+  },
+  {
+   "shot": "looks_up",
+   "src": "looks_up",
+   "in": 50,
+   "out": 94,
+   "dur": 44,
+   "note": "he looks up as flowers rise past (new Higgsfield shot)",
+   "fx": {
+    "push": [
+     1.0,
+     1.05
+    ]
+   }
+  },
+  {
+   "shot": "comfort",
+   "src": "comfort",
+   "in": 12,
+   "out": 92,
+   "dur": 88,
+   "note": "BREAKDOWN 22.04s: head on shoulder"
+  },
+  {
+   "shot": "portrait",
+   "src": "return",
+   "in": 8,
+   "out": 52,
+   "dur": 44,
+   "fx": {
+    "push": [
+     1.06,
+     1.0
+    ]
+   },
+   "note": "back to the portrait, pulling away"
+  },
+  {
+   "shot": "card",
+   "src": "card",
+   "in": 684,
+   "out": 716,
+   "dur": 59,
+   "note": "HARD CUT to ANTIDOTE on the last bar"
+  }
+ ]
+}

@@ -1,5 +1,22 @@
 # ANTIDOTE: re-cut
 
+## v5 (`edl_v5.json`): v4 plus new shots, sound design and finish
+
+* **Two new Higgsfield shots (Kling 3.0, started from frames of the existing footage)** in the
+  petal moment: a macro of the marigolds leaving the wet asphalt around the sneakers, right on
+  the 16.54 s bar, then the wide slow motion, then the elder lifting his chin as flowers float
+  past. Save them as `Media/13_Petals_lift_macro.mp4` and `Media/14_Lead_looks_up.mp4`.
+* **Sound design** (`sfx.py`, mixed into `Media/Music_sfx.wav`): a riser while the drop falls, a
+  sub boom and water plip on the bass drop, an airy swell into the petal lift, and a low hit under
+  the title.
+* **Finish:** film grain to bind the AI clips together, a light vignette, and a decaying camera
+  shake on the impact and the title.
+
+```bash
+python edit/sfx.py ANTIDOTE_Final_Cut_v2/Media/Music_00-30.wav ANTIDOTE_Final_Cut_v2/Media/Music_sfx.wav
+python edit/recut.py render ANTIDOTE_Final_Cut_v2 antidote_v5.mp4 --edl edit/edl_v5.json
+```
+
 ## v4: the "impact" cut (`edl_v4.json`)
 
 The brief, from the original ChatGPT conversation: a crybabycore fashion music video on
