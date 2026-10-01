@@ -157,6 +157,23 @@ def build_filter(clips, w, h, fps, fade_in):
     return ";".join(parts), cur, length
 
 
+def finish_chain(opts, w, h):
+    """Whole-film finishing: camera shake windows (frames), vignette and film grain."""
+    steps = []
+    shakes = opts.get("shake", [])
+    if shakes:
+        margin = max(amp for _, _, amp in shakes)
+        off = "+".join(f"if(between(n,{a},{b}),{amp}*sin(n*{1.9 + k}){'*'}({b}-n)/{b - a},0)"
+                       for k, (a, b, amp) in enumerate(shakes))
+        steps.append(f"scale={w + 2 * margin}:-2,crop={w}:{h}:x='{margin}+{off}':"
+                     f"y='{margin}+{off.replace('sin', 'cos')}'")
+    if opts.get("vignette"):
+        steps.append(f"vignette=angle={opts['vignette']}")
+    if opts.get("grain"):
+        steps.append(f"noise=c0s={opts['grain']}:c0f=t+u")
+    return ",".join(steps)
+
+
 def from_frames(edl):
     """Edit lists with "units": "frames" give in/out/dur and transitions in frames."""
     fps = edl["output"]["fps"]
@@ -195,6 +212,10 @@ def render(src, dst, edl_path, snap):
     h = opts.get("height") or infos[0]["height"]
     fps = opts.get("fps") or infos[0]["fps"]
     graph, vout, length = build_filter(clips, w, h, fps, opts.get("fade_in", 0))
+    finish = finish_chain(opts, w, h)
+    if finish:
+        graph += f";[{vout}]{finish}[final]"
+        vout = "final"
 
     starts, _ = timeline(clips)
     for c, s in zip(clips, starts):
