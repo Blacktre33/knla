@@ -59,10 +59,10 @@
   {
    "shot": "hanky_cu",
    "src": "hanky_cu",
-   "in": 20,
-   "out": 64,
+   "in": 36,
+   "out": 80,
    "dur": 44,
-   "note": "the friend dabs his eye (new Higgsfield close-up)",
+   "note": "the friend finishes dabbing his eye and stares into the lens (new Higgsfield close-up)",
    "fx": {
     "push": [
      1.0,

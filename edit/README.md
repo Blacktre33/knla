@@ -1,5 +1,22 @@
 # ANTIDOTE: re-cut
 
+## v6 (`edl_v6.json`): MosaicHaus
+
+* **Handkerchief close-up** (new; GPT Image 2.5 start frame + Kling 3.0) at 1.88 s: the friend
+  finishes dabbing his eye and stares into the lens, then the elder's tear, then the drop.
+* **Low hero walk** (new, same pipeline) on the hi-hat entry at 7.38 s: silver sneakers
+  stepping through the puddle, camera on the asphalt.
+* **Animated end card** (`title.py`): "MosaicHaus" in Montserrat Bold tracks in, the orange
+  rule draws, then the tagline fades up. Same layout as the original card.
+
+```bash
+npm pack @fontsource/montserrat && tar xzf fontsource-montserrat-*.tgz
+python edit/title.py ANTIDOTE_Final_Cut_v2/Media/15_Title_MosaicHaus.mp4 --font-dir package/files
+python edit/recut.py render ANTIDOTE_Final_Cut_v2 mosaichaus_v6.mp4 --edl edit/edl_v6.json
+```
+
+New media: `Media/16_Hanky_closeup.mp4`, `Media/17_Hero_walk_low.mp4`.
+
 ## v5 (`edl_v5.json`): v4 plus new shots, sound design and finish
 
 * **Two new Higgsfield shots (Kling 3.0, started from frames of the existing footage)** in the
