@@ -49,7 +49,12 @@ def fit_size(path, text, max_w, cap_h=104):
     return ImageFont.truetype(path, size)
 
 
+ALPHA = False
+
+
 def mix(c, a):
+    if ALPHA:
+        return (*c, int(255 * a))
     return tuple(int(BG[i] + (c[i] - BG[i]) * a) for i in range(3))
 
 
@@ -60,17 +65,23 @@ def main():
     ap.add_argument("--word", default="MosaicHaus")
     ap.add_argument("--tagline", default="STILL FEELING EVERYTHING")
     ap.add_argument("--frames", type=int, default=60)
+    ap.add_argument("--alpha", action="store_true",
+                    help="transparent background, ProRes 4444 .mov (for Final Cut / compositing)")
     a = ap.parse_args()
 
+    global ALPHA
+    ALPHA = a.alpha
     fd = Path(a.font_dir)
     word_font = fit_size(str(fd / "montserrat-latin-700-normal.woff"), a.word, 860)
     tag_font = ImageFont.truetype(str(fd / "montserrat-latin-500-normal.woff"), 22)
 
-    enc = subprocess.Popen([FFMPEG, "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-c:v", "libx264",
-                            "-crf", "12", "-pix_fmt", "yuv420p", a.output], stdin=subprocess.PIPE)
+    mode, codec = ("RGBA", ["-c:v", "prores_ks", "-profile:v", "4444", "-pix_fmt", "yuva444p10le"]) \
+        if a.alpha else ("RGB", ["-c:v", "libx264", "-crf", "12", "-pix_fmt", "yuv420p"])
+    enc = subprocess.Popen([FFMPEG, "-v", "error", "-y", "-f", "rawvideo",
+                            "-pix_fmt", "rgba" if a.alpha else "rgb24", "-s", f"{W}x{H}",
+                            "-r", str(FPS), "-i", "-", *codec, a.output], stdin=subprocess.PIPE)
     for n in range(a.frames):
-        im = Image.new("RGB", (W, H), BG)
+        im = Image.new(mode, (W, H), (0, 0, 0, 0) if a.alpha else BG)
         d = ImageDraw.Draw(im)
         t_word = ease(n / 14)                       # wordmark: fade + track in over ~0.6 s
         tracked(d, a.word, word_font, W / 2, 834, 4 + 16 * (1 - t_word), mix(CREAM, t_word))

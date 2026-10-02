@@ -132,6 +132,8 @@ def build_filter(clips, w, h, fps, fade_in):
                  f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
                  f"setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=1,"
                  f"trim=duration={c['dur']},setpts=PTS-STARTPTS")
+        for lut in fx.get("luts", []):
+            chain += f",lut3d=file='{lut}'"
         if "push" in fx or "punch" in fx:
             z = zoom_expr(c, fx)
             chain += (f",scale=w='trunc({w}*{z}/2)*2':h='trunc({h}*{z}/2)*2':eval=frame,"

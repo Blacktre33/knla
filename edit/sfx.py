@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Mix synthesized sound-design accents under the ANTIDOTE song.
 
-  python edit/sfx.py Music_00-30.wav Music_sfx.wav
+  python edit/sfx.py Music_00-30.wav Music_sfx.wav          # song + accents
+  python edit/sfx.py Music_00-30.wav SFX_stem.wav --stem     # accents only (for an editor)
 
 Accents are placed in frames at 24 fps, matching edl_v4.json:
 riser into the bass drop, sub boom + water plip on the drop, swell into the
@@ -59,7 +60,7 @@ def place(track, clip, start, gain_db):
     track[i:i + len(seg)] += seg
 
 
-def main(src, dst):
+def main(src, dst, stem_only=False):
     raw = subprocess.run([FFMPEG, "-v", "error", "-i", src, "-ac", "2", "-ar", str(SR),
                           "-f", "f32le", "-"], capture_output=True, check=True).stdout
     song = np.frombuffer(raw, np.float32).reshape(-1, 2).copy()
@@ -71,7 +72,7 @@ def main(src, dst):
     place(fx, riser(sec(397 - 375), 600, 12000), sec(375), -28)  # into the petal lift
     place(fx, boom(1.8, 50, 28), sec(661), -12)          # title card
 
-    out = song + fx[:, None]
+    out = (fx[:, None] * np.ones((1, 2))) if stem_only else song + fx[:, None]
     peak = np.abs(out).max()
     if peak > 0.98:
         out *= 0.98 / peak
@@ -82,4 +83,4 @@ def main(src, dst):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    main(sys.argv[1], sys.argv[2], "--stem" in sys.argv[3:])
